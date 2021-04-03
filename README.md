@@ -24,6 +24,7 @@ Create a `envVariables.tfvars` file in the root directory with the following var
 Using Docker Desktop for local environment
 
 1.  Build the image: `docker build -t seo-bot:latest .`
-2.  Launch from the built image: `docker run -d -n seo-bot -p 80:80 seo-bot:latest`
+2.  Launch from the built image: `docker run -d --name seo-bot -p 80:80 seo-bot:latest`
 3.  Check the status: `docker ps`
-4.  Remote shell into the image: `docker exec -it seo-bot /bin/bash`
+4.  Check logs: `docker logs seo-bot`
+5.  Remote shell into the image: `docker exec -it seo-bot /bin/bash`
