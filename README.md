@@ -2,7 +2,7 @@
 
 Directing search engines to https://palmbeachacu.com/
 
-# Getting Started with Terraform
+## Getting Started with Terraform
 For local devlopment and testing
 
 All infrastructure code will reside within the `Terraform` dir.
@@ -14,7 +14,16 @@ Create a `envVariables.tfvars` file in the root directory with the following var
     ARM_SUBSCRIPTION_ID="<SubscriptionID>"
     ARM_TENANT_ID="<AzureActiveDirectoryTenantID>"
 
-1.	terraform init
-2.	terraform plan -var-file="envVariables.tfvars"
-3.	terraform apply -var-file="envVariables.tfvars"
-4.	terraform destroy -var-file="envVariables.tfvars"
+1.	`cd .\Terraform\`
+2.  `terraform init`
+3.	`terraform plan -var-file="envVariables.tfvars"`
+4.	`terraform apply -var-file="envVariables.tfvars"`
+5.	`terraform destroy -var-file="envVariables.tfvars"`
+
+## Getting Started with Docker
+Using Docker Desktop for local environment
+
+1.  Build the image: `docker build -t seo-bot:latest .`
+2.  Launch from the built image: `docker run -d -n seo-bot -p 80:80 seo-bot:latest`
+3.  Check the status: `docker ps`
+4.  Remote shell into the image: `docker exec -it seo-bot /bin/bash`
