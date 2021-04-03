@@ -56,8 +56,8 @@ resource "azurerm_app_service_plan" "main" {
   reserved            = true
 
   sku {
-    tier = "Premium"
-    size = "P1V2"
+    tier = "PremiumV2"
+    size = "P1v2"
   }
   tags = {
     environment = var.environment
@@ -71,6 +71,7 @@ resource "azurerm_function_app" "main" {
   app_service_plan_id        = azurerm_app_service_plan.main.id
   storage_account_name       = azurerm_storage_account.main.name
   storage_account_access_key = azurerm_storage_account.main.primary_access_key
+  os_type                    = "linux"
   version                    = "~3"
 
   app_settings = {
@@ -79,6 +80,11 @@ resource "azurerm_function_app" "main" {
     "WEBSITE_ENABLE_SYNC_UPDATE_SITE" = true
     "WEBSITE_RUN_FROM_PACKAGE" = 1
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE" = false
+  }
+
+  site_config {
+    always_on         = true
+    use_32_bit_worker_process = false
   }
 
   tags = {
