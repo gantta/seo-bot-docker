@@ -1,0 +1,15 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Attach to .NET Functions",
+            "type": "coreclr",
+            "request": "attach",
+            "processId": "${command:azureFunctions.pickProcess}",
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development",
+                "AzureWebJobsStorage": "DefaultEndpointsProtocol=https;AccountName=ganttcloudstate997;AccountKey=KAb9rSIaVCzi4qLFnWrlYdnP/NU+GsH5C1IXwjW/o2fGl08flsGXx4nubrTyFQfBLLxw4bWt9MxiK+nNRHB5fA==;EndpointSuffix=core.windows.net"
+            }
+        }
+    ]
+}
