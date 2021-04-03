@@ -52,11 +52,12 @@ resource "azurerm_app_service_plan" "main" {
   name                = "${var.prefix}-${var.environment}-asp"
   location            = var.location
   resource_group_name = azurerm_resource_group.main.name
-  kind                = "FunctionApp"
+  kind                = "Linux"
+  reserved            = true
 
   sku {
-    tier = "Dynamic"
-    size = "Y1"
+    tier = "Premium"
+    size = "P1V2"
   }
   tags = {
     environment = var.environment
@@ -74,9 +75,10 @@ resource "azurerm_function_app" "main" {
 
   app_settings = {
     "APPINSIGHTS_INSTRUMENTATIONKEY" = azurerm_application_insights.main.instrumentation_key
+    "ENVIRONMENT" = var.environment
     "WEBSITE_ENABLE_SYNC_UPDATE_SITE" = true
     "WEBSITE_RUN_FROM_PACKAGE" = 1
-    "ENVIRONMENT" = var.environment
+    "WEBSITES_ENABLE_APP_SERVICE_STORAGE" = false
   }
 
   tags = {
