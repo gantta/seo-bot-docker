@@ -108,7 +108,7 @@ stages:
       inputs:
         repository: '$(imageRepository)'
         command: build
-        tag: '$(tag)'
+        tags: '$(tag)'
         Dockerfile: Dockerfile
     
     - task: Docker@2
