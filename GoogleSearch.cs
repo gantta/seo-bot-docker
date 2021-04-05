@@ -36,8 +36,17 @@ namespace seo_bot_docker
 
             MyChromeDriver myChromeDriver = new MyChromeDriver(path, driver, log);
             myChromeDriver.Setup();
-            myChromeDriver.RunGoogleSearch();
-            myChromeDriver.TearDown();
+            try {
+                myChromeDriver.RunGoogleSearch();
+            }
+            catch (Exception ex) {
+                log.LogError(ex.Message);
+            }
+            finally {
+                myChromeDriver.TearDown();
+            }
+            
+            
         }
     }
 }
