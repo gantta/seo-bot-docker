@@ -11,32 +11,30 @@ pool:
 
 variables:
   system.debug: false
-
-  imageName: 'seo-bot'
-  
-  # Azure Resource Manager connection created during pipeline creation
-  azureSubscription: 'AzureCloud'
-  # Container registry service connection
-  dockerRegistryServiceConnection: 'SEOBOTACR'
-  imageRepository: 'seo-bot'
-  containerRegistry: 'seobotdevacr'
-  dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile'
-  tag: 'latest'
-
-  # Function app name
-  functionAppName: 'seobot-dev-func'
-  
   # Agent VM image name
   vmImageName: 'ubuntu-latest'
 
-  # Working Directory
-  workingDirectory: '$(System.DefaultWorkingDirectory)/'
+  # Azure Resource Manager connection created during pipeline creation
+  azureServiceConnection: 'AzureCloud'
+  # Container registry service connection
+  dockerRegistryServiceConnection: 'SEOBOTACR'
 
+  # Terraform task variables
   CLIENT_ID: '$(ARM_CLIENT_ID)'
   CLIENT_SECRET: '$(ARM_CLIENT_SECRET)'
   SUBSCRIPTION_ID: '$(ARM_SUBSCRIPTION_ID)'
   TENANT_ID: '$(ARM_TENANT_ID)'
+  TF_ResourceGroup: 'terraform-state-rg'
+  TF_StorageAccount: 'ganttcloudstate997'
+  TF_Container: 'tfstate'
+  TF_StateFile: 'dev.seo-bot.tfstate'
 
+  # Docker task variables
+  imageRepository: 'seo-bot'
+  containerRegistry: 'seobotdevacr'
+  imageName: 'seo-bot'
+  dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile'
+  tag: 'latest'
 
 stages:
 - stage: Terraform
@@ -55,40 +53,40 @@ stages:
       displayName: 'Install Terraform 0.14.9'
     
     - task: TerraformTaskV1@0
+      displayName: 'Terraform Init'
       inputs:
         command: 'init'
         provider: 'azurerm'
         workingDirectory: '$(System.DefaultWorkingDirectory)/Terraform'
-        backendServiceArm: 'AzureCloud'
-        environmentServiceNameAzureRM: 'AzureCloud'
-        backendAzureRmResourceGroupName: 'terraform-state-rg'
-        backendAzureRmStorageAccountName: 'ganttcloudstate997'
-        backendAzureRmContainerName: 'tfstate'
-        backendAzureRmKey: 'dev.seo-bot.tfstate'
-      displayName: 'Terraform Init'
-
+        backendServiceArm: '$(azureServiceConnection)'
+        environmentServiceNameAzureRM: '$(azureServiceConnection)'
+        backendAzureRmResourceGroupName: '$(TF_ResourceGroup)'
+        backendAzureRmStorageAccountName: '$(TF_StorageAccount)'
+        backendAzureRmContainerName: '$(TF_Container)'
+        backendAzureRmKey: '$(TF_StateFile)'
+      
     - task: TerraformTaskV1@0
+      displayName: 'Terraform Plan'
       inputs:
         command: 'plan'
         provider: 'azurerm'
         workingDirectory: '$(System.DefaultWorkingDirectory)/Terraform'
-        backendServiceArm: 'AzureCloud'
-        environmentServiceNameAzureRM: 'AzureCloud'
-        backendAzureRmResourceGroupName: 'terraform-state-rg'
-        backendAzureRmStorageAccountName: 'ganttcloudstate997'
-        backendAzureRmContainerName: 'tfstate'
-        backendAzureRmKey: 'dev.seo-bot.tfstate'
+        backendServiceArm: '$(azureServiceConnection)'
+        environmentServiceNameAzureRM: '$(azureServiceConnection)'
+        backendAzureRmResourceGroupName: '$(TF_ResourceGroup)'
+        backendAzureRmStorageAccountName: '$(TF_StorageAccount)'
+        backendAzureRmContainerName: '$(TF_Container)'
+        backendAzureRmKey: '$(TF_StateFile)'
         commandOptions: -var=ARM_CLIENT_ID=$(CLIENT_ID) -var=ARM_CLIENT_SECRET=$(CLIENT_SECRET) -var=ARM_TENANT_ID=$(TENANT_ID) -var=ARM_SUBSCRIPTION_ID=$(SUBSCRIPTION_ID)
-      displayName: 'Terraform Plan'
 
     - task: TerraformTaskV1@0
+      displayName: 'Terraform Apply'
       inputs:
         command: 'apply'
         provider: 'azurerm'
         workingDirectory: '$(System.DefaultWorkingDirectory)/Terraform'
-        environmentServiceNameAzureRM: 'AzureCloud'
+        environmentServiceNameAzureRM: '$(azureServiceConnection)'
         commandOptions: -var=ARM_CLIENT_ID=$(CLIENT_ID) -var=ARM_CLIENT_SECRET=$(CLIENT_SECRET) -var=ARM_TENANT_ID=$(TENANT_ID) -var=ARM_SUBSCRIPTION_ID=$(SUBSCRIPTION_ID)
-      displayName: 'Terraform Apply'
 
 - stage: Deploy
   displayName: Deploy stage
@@ -115,6 +113,6 @@ stages:
         containerRegistry: '$(dockerRegistryServiceConnection)'
         repository: '$(imageRepository)'
         command: 'buildAndPush'
-        Dockerfile: 'Dockerfile'
+        Dockerfile: '$(dockerfilePath)'
         tags: '$(tag)'
     
