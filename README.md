@@ -2,6 +2,8 @@
 
 Directing search engines to https://palmbeachacu.com/
 
+[![Build Status](https://dev.azure.com/gantta/SEO%20Bot/_apis/build/status/gantta.seo-bot-docker?branchName=master)](https://dev.azure.com/gantta/SEO%20Bot/_build/latest?definitionId=11&branchName=master)
+
 ## Getting Started with Terraform
 For local devlopment and testing
 
