@@ -118,9 +118,9 @@ stages:
         Dockerfile: 'Dockerfile'
         tags: '$(tag)'
     
-    - task: AzureFunctionAppContainer@1
-      displayName: 'Deploy an image'
-      inputs:
-        azureSubscription: $(azureSubscription)
-        appName: $(functionAppName)
-        imageName: $(containerRegistry)/$(imageRepository):$(tag)
+    #- task: AzureFunctionAppContainer@1
+      #displayName: 'Deploy an image'
+      #inputs:
+        #azureSubscription: $(azureSubscription)
+        #appName: $(functionAppName)
+        #imageName: $(containerRegistry)/$(imageRepository):$(tag)
