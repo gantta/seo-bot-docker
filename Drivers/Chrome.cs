@@ -1,8 +1,10 @@
 using System;
+using System.Threading;
 using Microsoft.Extensions.Logging;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
+
 
 namespace seo_bot_docker
 {
@@ -40,24 +42,19 @@ namespace seo_bot_docker
             // Navigate to Google
             _log.LogInformation("Opening Google...");
             _chromeDriver.Navigate().GoToUrl("https://www.google.com");
+            int timeoutSeconds = 10;
             
-            // Create new wait timer and set it to 1 minute
-            var wait = new WebDriverWait(_chromeDriver, new TimeSpan(0, 0, 1, 0));
+            // Create new wait timer and set it to 10 seconds
+            var wait = new WebDriverWait(_chromeDriver, TimeSpan.FromSeconds(timeoutSeconds));
             _log.LogInformation("Waiting for search page to load...");
-            wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.Name("q")));
+            wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.Name("q"))).SendKeys("palm beach acupuncture");
             
-            // Input to the search box
-            var googleSearchBox = _chromeDriver.FindElement(By.Name("q"));
-            googleSearchBox.Clear();
-            googleSearchBox.SendKeys("palm beach acupuncture");
-
-            // Wait until Google Search button is visible but don't wait more than 1 minute.
+            // Wait until Google Search button is visible
             _log.LogInformation("Waiting for search button to become visible...");
-            wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.Name("btnK")));
-
-            var searchButton = _chromeDriver.FindElement(By.Name("btnK"));
+            IWebElement searchButton = new WebDriverWait(_chromeDriver, TimeSpan.FromSeconds(timeoutSeconds)).Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.Name("q")));
+            
             _log.LogInformation("Clicking search button...");
-            searchButton.Click();
+            searchButton.SendKeys(Keys.Enter);
 
             // Wait until search results stats appear which confirms that the search finished
             _log.LogInformation("Waiting for result stats...");
