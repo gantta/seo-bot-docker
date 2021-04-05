@@ -97,23 +97,22 @@ stages:
   condition: succeeded()
 
   jobs:
-  - deployment: Deploy
+  - job: Deploy
     displayName: Deploy
-    environment: 'development'
     pool:
       vmImage: $(vmImageName)
 
-      steps:
-      - task: Docker@2
-        displayName: 'Build an image'
-        inputs:
-          repository: $(imageName)
-          command: build
-          Dockerfile: Dockerfile
+    steps:
+    - task: Docker@2
+      displayName: 'Build an image'
+      inputs:
+        repository: $(imageName)
+        command: build
+        Dockerfile: Dockerfile
 
-      - task: AzureFunctionAppContainer@1
-        displayName: 'Deploy an image'
-        inputs:
-          azureSubscription: $(azureSubscription)
-          appName: $(functionAppName)
-          imageName: $(containerRegistry)/$(imageRepository):$(tag)
+    - task: AzureFunctionAppContainer@1
+      displayName: 'Deploy an image'
+      inputs:
+        azureSubscription: $(azureSubscription)
+        appName: $(functionAppName)
+        imageName: $(containerRegistry)/$(imageRepository):$(tag)
