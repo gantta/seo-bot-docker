@@ -70,8 +70,8 @@ resource "azurerm_app_service_plan" "main" {
   reserved            = true
 
   sku {
-    tier = "Basic"
-    size = "B1"
+    tier = "Premium"
+    size = "P1V2"
   }
   tags = {
     environment = var.environment
