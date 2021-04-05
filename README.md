@@ -23,7 +23,7 @@ Create a `envVariables.tfvars` file in the root directory with the following var
 ## Getting Started with Docker
 Using Docker Desktop for local environment
 
-1.  Build the image: `docker build -t seo-bot:latest .`
+1.  Build the image: `docker build --build-arg StorageConnectionString="<StorageAccountConnectionString" -t seo-bot:latest .`
 2.  Launch from the built image: `docker run -d --name seo-bot -p 80:80 seo-bot:latest`
 3.  Check the status: `docker ps`
 4.  Check logs: `docker logs seo-bot`
