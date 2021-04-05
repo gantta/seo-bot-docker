@@ -6,17 +6,28 @@
 trigger:
 - master
 
+pool:
+  vmImage: 'ubuntu-1604'
+
 variables:
   system.debug: false
+
+  imageName: 'seo-bot'
   
   # Azure Resource Manager connection created during pipeline creation
   azureSubscription: 'AzureCloud'
+  # Container registry service connection
+  dockerRegistryServiceConnection: 'AzureACR'
+  imageRepository: 'seo-bot'
+  containerRegistry: 'seobotdevacr'
+  dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile'
+  tag: 'latest'
 
   # Function app name
   functionAppName: 'seobot-dev-func'
-
+  
   # Agent VM image name
-  vmImageName: 'vs2017-win2016'
+  vmImageName: 'ubuntu-latest'
 
   # Working Directory
   workingDirectory: '$(System.DefaultWorkingDirectory)/'
@@ -28,48 +39,8 @@ variables:
 
 
 stages:
-- stage: Build
-  displayName: Build stage
-
-  jobs:
-  - job: Build
-    displayName: Build
-    pool:
-      vmImage: $(vmImageName)
-
-    steps:
-    - task: DotNetCoreCLI@2
-      displayName: Build
-      inputs:
-        command: 'build'
-        projects: |
-          $(workingDirectory)/*.csproj
-        arguments: --output $(System.DefaultWorkingDirectory)/publish_output --configuration Release
-    
-    #- task: DotNetCoreCLI@2
-      #displayName: Test
-      #inputs:
-        #command: test
-        #projects: |
-          #$(workingDirectory)/*.csproj
-        #arguments: --configuration Release
-
-    - task: ArchiveFiles@2
-      displayName: 'Archive files'
-      inputs:
-        rootFolderOrFile: '$(System.DefaultWorkingDirectory)/publish_output'
-        includeRootFolder: false
-        archiveType: zip
-        archiveFile: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
-        replaceExistingArchive: true
-
-    - publish: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
-      artifact: drop
-
 - stage: Terraform
   displayName: Terraform stage
-  dependsOn: Build
-  condition: succeeded()
 
   jobs:
   - job: Terraform
@@ -122,7 +93,6 @@ stages:
 - stage: Deploy
   displayName: Deploy stage
   dependsOn: 
-  - Build
   - Terraform
   condition: succeeded()
 
@@ -133,15 +103,17 @@ stages:
     pool:
       vmImage: $(vmImageName)
 
-    strategy:
-      runOnce:
-        deploy:
+      steps:
+      - task: Docker@2
+        displayName: 'Build an image'
+        inputs:
+          repository: $(imageName)
+          command: build
+          Dockerfile: Dockerfile
 
-          steps:
-          - task: AzureFunctionApp@1
-            displayName: 'Azure functions app deploy'
-            inputs:
-              azureSubscription: '$(azureSubscription)'
-              appType: functionApp
-              appName: $(functionAppName)
-              package: '$(Pipeline.Workspace)/drop/$(Build.BuildId).zip'
+      - task: AzureFunctionAppContainer@1
+        displayName: 'Deploy an image'
+        inputs:
+          azureSubscription: $(azureSubscription)
+          appName: $(functionAppName)
+          imageName: $(containerRegistry)/$(imageRepository):$(tag)
