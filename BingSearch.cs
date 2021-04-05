@@ -6,13 +6,12 @@ using Microsoft.Extensions.Logging;
 
 namespace seo_bot_docker
 {
-    public static class GoogleSearch
+    public static class BingSearch
     {
-
-        [FunctionName("GoogleSearch")]
+        [FunctionName("BingSearch")]
         public static void Run([TimerTrigger("0 */1 * * * *")]TimerInfo myTimer, ILogger log)
         {
-            log.LogInformation($"GoogleSearch C# Timer trigger function executed at: {DateTime.Now}");
+            log.LogInformation($"BingSearch C# Timer trigger function executed at: {DateTime.Now}");
 
             string env = Environment.GetEnvironmentVariable("ENVIRONMENT");
 
@@ -36,7 +35,7 @@ namespace seo_bot_docker
 
             MyChromeDriver myChromeDriver = new MyChromeDriver(path, driver, log);
             myChromeDriver.Setup();
-            myChromeDriver.RunGoogleSearch();
+            myChromeDriver.RunBingSearch();
             myChromeDriver.TearDown();
         }
     }

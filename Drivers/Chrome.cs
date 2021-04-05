@@ -85,6 +85,50 @@ namespace seo_bot_docker
             }
         }
 
+        public void RunBingSearch() {
+            // Navigate to Google
+            _log.LogInformation("Opening Bing...");
+            _chromeDriver.Navigate().GoToUrl("https://www.bing.com");
+            int timeoutSeconds = 10;
+            
+            // Create new wait timer and set it to 10 seconds
+            var wait = new WebDriverWait(_chromeDriver, TimeSpan.FromSeconds(timeoutSeconds));
+            _log.LogInformation("Waiting for search page to load...");
+            wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.Id("sb_form_q"))).SendKeys("palm beach acupuncture");
+            
+            // Wait until Search button is visible
+            _log.LogInformation("Waiting for search button to become visible...");
+            //IWebElement searchButton = new WebDriverWait(_chromeDriver, TimeSpan.FromSeconds(timeoutSeconds)).Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.Id("sb_form_go")));
+            IWebElement searchButton = _chromeDriver.FindElement(By.Id("sb_form_q"));
+            
+            _log.LogInformation("Clicking search button...");
+            searchButton.SendKeys(Keys.Enter);
+
+            // Wait until search results stats appear which confirms that the search finished
+            _log.LogInformation("Waiting for result stats...");
+            wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.ClassName("sb_count")));
+
+            // Find a search result in the list
+            var results = _chromeDriver.FindElements(By.Id("b_results"));
+
+            _log.LogInformation("Printing the result links...");
+            var foundIt = false;
+            foreach (var result in results) {
+                if (foundIt) { break; }
+                _log.LogInformation(result.Text);
+                string url = result.FindElement(By.TagName("a")).GetAttribute("href");
+                _log.LogInformation(url);
+                if (url.Equals("https://palmbeachacu.com/")) {
+                    _log.LogInformation("Following link to desired site...");
+                    var myPage = result.FindElement(By.TagName("a"));
+                    myPage.Click();
+                    _log.LogInformation("Waiting for page to load...");
+                    //wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.TagName("a")));
+                    foundIt = true;
+                    _log.LogInformation("Finished navigating to site...");
+                }
+            }
+        }
         public void TearDown() {
             _chromeDriver.Quit();
         }
