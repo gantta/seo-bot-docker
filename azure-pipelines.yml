@@ -104,6 +104,11 @@ stages:
 
     steps:
     - task: Docker@2
+      displayName: 'Login Container Registry'
+      inputs:
+        containerRegistry: 'AzureACR'
+        command: 'login'
+    - task: Docker@2
       displayName: 'Build/Push an image'
       inputs:
         containerRegistry: 'AzureACR'
