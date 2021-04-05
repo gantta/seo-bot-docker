@@ -17,7 +17,7 @@ variables:
   # Azure Resource Manager connection created during pipeline creation
   azureSubscription: 'AzureCloud'
   # Container registry service connection
-  dockerRegistryServiceConnection: 'AzureACR'
+  dockerRegistryServiceConnection: 'SEOBOTACR'
   imageRepository: 'seo-bot'
   containerRegistry: 'seobotdevacr'
   dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile'
@@ -106,12 +106,13 @@ stages:
     - task: Docker@2
       displayName: 'Login Container Registry'
       inputs:
-        containerRegistry: 'AzureACR'
+        containerRegistry: '$(dockerRegistryServiceConnection)'
         command: 'login'
+
     - task: Docker@2
       displayName: 'Build/Push an image'
       inputs:
-        containerRegistry: 'AzureACR'
+        containerRegistry: '$(dockerRegistryServiceConnection)'
         repository: '$(imageRepository)'
         command: 'buildAndPush'
         Dockerfile: 'Dockerfile'
