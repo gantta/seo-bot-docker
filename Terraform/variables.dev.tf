@@ -32,3 +32,13 @@ variable "prefix" {
   default = "seobot"
   description = "The prefix used for all resources in this example"
 }
+
+variable "image_name" {
+  default = "seo-bot"
+  description = "The container registry image name"
+}
+
+variable "tag" {
+  default = "latest"
+  description = "The image tag"
+}

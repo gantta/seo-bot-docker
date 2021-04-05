@@ -46,6 +46,20 @@ resource "azurerm_storage_account" "main" {
   location                 = azurerm_resource_group.main.location
   account_tier             = "Standard"
   account_replication_type = "LRS"
+  tags = {
+    environment = var.environment
+  }
+}
+
+resource "azurerm_container_registry" "main" {
+  name                     = "${var.prefix}${var.environment}acr"
+  resource_group_name      = azurerm_resource_group.main.name
+  location                 = azurerm_resource_group.main.location
+  sku                      = "Standard"
+  admin_enabled            = true
+  tags = {
+    environment = var.environment
+  }
 }
 
 resource "azurerm_app_service_plan" "main" {
@@ -56,8 +70,8 @@ resource "azurerm_app_service_plan" "main" {
   reserved            = true
 
   sku {
-    tier = "PremiumV2"
-    size = "P1v2"
+    tier = "Basic"
+    size = "B1"
   }
   tags = {
     environment = var.environment
@@ -75,16 +89,20 @@ resource "azurerm_function_app" "main" {
   version                    = "~3"
 
   app_settings = {
-    "APPINSIGHTS_INSTRUMENTATIONKEY" = azurerm_application_insights.main.instrumentation_key
-    "ENVIRONMENT" = var.environment
-    "WEBSITE_ENABLE_SYNC_UPDATE_SITE" = true
-    "WEBSITE_RUN_FROM_PACKAGE" = 1
-    "WEBSITES_ENABLE_APP_SERVICE_STORAGE" = false
+    APPINSIGHTS_INSTRUMENTATIONKEY = azurerm_application_insights.main.instrumentation_key
+    DOCKER_REGISTRY_SERVER_URL = azurerm_container_registry.main.login_server
+    DOCKER_REGISTRY_SERVER_USERNAME = azurerm_container_registry.main.admin_username
+    DOCKER_REGISTRY_SERVER_PASSWORD = azurerm_container_registry.main.admin_password
+    ENVIRONMENT = var.environment
+    WEBSITE_ENABLE_SYNC_UPDATE_SITE = true
+    WEBSITE_RUN_FROM_PACKAGE = 1
+    WEBSITES_ENABLE_APP_SERVICE_STORAGE = false
   }
 
   site_config {
-    always_on         = true
+    always_on                 = true
     use_32_bit_worker_process = false
+    linux_fx_version            = "DOCKER|${azurerm_container_registry.main.login_server}/${var.image_name}:${var.tag}"
   }
 
   tags = {
