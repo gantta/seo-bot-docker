@@ -55,3 +55,6 @@ Before saving the pipeline, create four new variables to store your Azure Active
     ARM_TENANT_ID="<AzureActiveDirectoryTenantID>"
 
 Save and run the pipeline.
+
+## Configure Azure Function to Pull Container
+Navigate to the function app created by Terraform. From Deployment > Deployment Center, configure the Container Registry settings for a Single Container.
