@@ -104,21 +104,13 @@ stages:
 
     steps:
     - task: Docker@2
-      displayName: 'Build an image'
+      displayName: 'Build/Push an image'
       inputs:
         repository: '$(imageRepository)'
-        command: build
+        command: buildAndPush
         tags: '$(tag)'
         Dockerfile: Dockerfile
     
-    - task: Docker@2
-      displayName: 'Push an image'
-      inputs:
-        containerRegistry: 'AzureACR'
-        repository: '$(imageRepository)'
-        command: 'push'
-        tags: '$(tag)'
-
     - task: AzureFunctionAppContainer@1
       displayName: 'Deploy an image'
       inputs:
