@@ -41,6 +41,8 @@ The `azure-pipelines.yml` is used to configure and run the pipeline from Github 
 
 3.  The pipeline relies on a Service Connection of type Docker Registry to connect to the container registry for storing the image. In my example, using Terraform to create the container registry, but am unable to successfully run the pipeline prior to creating the required Azure Container Registry. In my case, I use Terraform locally to create the initial Azure resources and then create a Service Connection to the Azure Container Registry.
 
+    NOTE: If the Azure Container Registry is ever removed and recreated, a new Service Connection is required to re-establish credentials.
+
 4.  Update the `azure-pipelines.yml` variables `azureServiceConnection` and `dockerRegistryServiceConnection` to match the name defined when creating the Service Connections.
 
 5.  Update the Terraform variables `TF_*` to match the shared state file stored in the Azure Storage Account.
