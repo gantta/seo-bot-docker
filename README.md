@@ -1,8 +1,10 @@
 # seo-bot-docker
 
-Running Selenium web scraping in containerized Azure Function using .Net Core 3.1
+Running Selenium web scraping in containerized Azure Functions
 
 [![Build Status](https://dev.azure.com/gantta/SEO%20Bot/_apis/build/status/gantta.seo-bot-docker?branchName=master)](https://dev.azure.com/gantta/SEO%20Bot/_build/latest?definitionId=11&branchName=master)
+
+Tech Stack: .Net Core 3.1 | Docker | Terraform | Azure Functions with Containers on Linux | Azure DevOps
 
 ## Getting Started with Terraform
 For local devlopment and testing

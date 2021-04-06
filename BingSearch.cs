@@ -36,7 +36,7 @@ namespace seo_bot_docker
             MyChromeDriver myChromeDriver = new MyChromeDriver(path, driver, log);
             myChromeDriver.Setup();
             try {
-                myChromeDriver.RunBingSearch();
+                myChromeDriver.RunBingSearch("https://www.bing.com");
             }
             catch (Exception ex) {
                 log.LogError(ex.Message);
