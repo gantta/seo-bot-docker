@@ -13,11 +13,14 @@ namespace seo_bot_docker
         private string _pathToDriver;
         private string _driverApp;
         private ILogger _log;
+
+        private SearchHelper _searchHelper;
  
         public MyChromeDriver(string pathToDriver, string driverApp, ILogger log) {
             _pathToDriver = pathToDriver;
             _driverApp = driverApp;
             _log = log;
+            _searchHelper = new SearchHelper();
         }
 
         public void Setup() {
@@ -43,11 +46,14 @@ namespace seo_bot_docker
             _log.LogInformation("Opening Google...");
             _chromeDriver.Navigate().GoToUrl("https://www.google.com");
             int timeoutSeconds = 10;
+
+            string query = _searchHelper.GetRandomSearch();
             
             // Create new wait timer and set it to 10 seconds
             var wait = new WebDriverWait(_chromeDriver, TimeSpan.FromSeconds(timeoutSeconds));
             _log.LogInformation("Waiting for search page to load...");
-            wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.Name("q"))).SendKeys("palm beach acupuncture");
+            _log.LogInformation($"Searching for phrase '{query}'");
+            wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.Name("q"))).SendKeys(query);
             
             // Wait until Google Search button is visible
             _log.LogInformation("Waiting for search button to become visible...");
@@ -90,11 +96,14 @@ namespace seo_bot_docker
             _log.LogInformation("Opening Bing...");
             _chromeDriver.Navigate().GoToUrl("https://www.bing.com");
             int timeoutSeconds = 10;
+
+            string query = _searchHelper.GetRandomSearch();
             
             // Create new wait timer and set it to 10 seconds
             var wait = new WebDriverWait(_chromeDriver, TimeSpan.FromSeconds(timeoutSeconds));
             _log.LogInformation("Waiting for search page to load...");
-            wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.Id("sb_form_q"))).SendKeys("palm beach acupuncture");
+            _log.LogInformation($"Searching for phrase '{query}'");
+            wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.Id("sb_form_q"))).SendKeys(query);
             
             // Wait until Search button is visible
             _log.LogInformation("Waiting for search button to become visible...");
