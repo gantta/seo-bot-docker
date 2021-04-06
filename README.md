@@ -4,7 +4,26 @@ Running Selenium web scraping in containerized Azure Functions
 
 [![Build Status](https://dev.azure.com/gantta/SEO%20Bot/_apis/build/status/gantta.seo-bot-docker?branchName=master)](https://dev.azure.com/gantta/SEO%20Bot/_build/latest?definitionId=11&branchName=master)
 
-Tech Stack: .Net Core 3.1 | Docker | Terraform | Azure Functions with Containers on Linux | Azure DevOps
+Tech Stack: [.Net Core 3.1](https://dotnet.microsoft.com/download/dotnet/3.1) | [Docker](https://www.docker.com/products/docker-desktop) | [Terraform](https://www.terraform.io/downloads.html) | [Azure Functions](http://portal.azure.com/) with Containers on Linux | [Azure DevOps](https://dev.azure.com/)
+
+## Application Configuration
+For local development and testing.
+
+Note: This code is developed and run locally on a Windows OS, but containerized in a Linux OS.
+
+If pulling the code from the repository, create a `local.settings.json` file in the root dir.
+Add the following block to the `local.settings.json` file:
+```
+{
+    "IsEncrypted": false,
+    "Values": {
+        "FUNCTIONS_WORKER_RUNTIME": "dotnet",
+        "AzureWebJobsStorage": "ConnectionString to your storage account",
+        "ENVIRONMENT": "local"
+    }
+}
+```
+Update the `appConfig.json` file for your desired search query parameters, and desired target site to look for in the search results.
 
 ## Getting Started with Terraform
 For local devlopment and testing

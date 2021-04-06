@@ -7,11 +7,13 @@ namespace seo_bot_docker
 {
     public class SearchHelper {
         private List<string> _searchPhrases;
+        private string _targetDomain;
         static Random _random;
 
         public SearchHelper() {
-            JObject o1 = JObject.Parse(File.ReadAllText(@"searchPhrases.json"));
+            JObject o1 = JObject.Parse(File.ReadAllText(@"appConfig.json"));
             JArray a = (JArray)o1["searchPhrases"];
+            _targetDomain = o1["targetDomain"].ToString();
             _searchPhrases = a.ToObject<List<string>>();
             _random = new Random();
         }
@@ -19,6 +21,10 @@ namespace seo_bot_docker
         public string GetRandomSearch() {
             int r = _random.Next(_searchPhrases.Count);
             return _searchPhrases[r];
+        }
+
+        public string GetTargetDomain(){
+            return _targetDomain;
         }
     }
 }

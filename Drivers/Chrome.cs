@@ -145,7 +145,7 @@ namespace seo_bot_docker
                 _log.LogInformation(result.Text);
                 string url = result.FindElement(By.TagName("a")).GetAttribute("href");
                 _log.LogInformation(url);
-                if (!string.IsNullOrEmpty(url) && url.Contains("palmbeachacu")) {
+                if (!string.IsNullOrEmpty(url) && url.Contains(_searchHelper.GetTargetDomain())) {
                     _log.LogInformation("Following link to desired site...");
                     var myPage = result.FindElement(By.TagName("a"));
                     myPage.Click();
