@@ -79,7 +79,7 @@ namespace seo_bot_docker
                 _log.LogInformation(result.Text);
                 string url = result.FindElement(By.TagName("a")).GetAttribute("href");
                 _log.LogInformation(url);
-                if (url.Equals("https://palmbeachacu.com/")) {
+                if (url.Contains("palmbeachacu")) {
                     _log.LogInformation("Following link to desired site...");
                     var myPage = result.FindElement(By.TagName("a"));
                     myPage.Click();
