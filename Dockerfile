@@ -23,10 +23,9 @@ RUN apt-get update && \
     wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - && \
     echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list && \
     apt-get update -y && \
-    apt-get install -y google-chrome-stable && \
+    apt-get install -y google-chrome-stable --no-install-recommends && \
+    rm -rf /var/lib/apt/lists/* && \
     CHROMEVER=$(google-chrome --product-version | grep -o "[^.]*.[^.]*.[^.]*" | sed 1q) && \
-    echo "$CHROMEVER" && \
     DRIVERVER=$(curl -s "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$CHROMEVER") && \
-    echo "$DRIVERVER" && \
     wget -q --continue -P /chromedriver "http://chromedriver.storage.googleapis.com/$DRIVERVER/chromedriver_linux64.zip" && \
     unzip /chromedriver/chromedriver* -d /usr/bin/
