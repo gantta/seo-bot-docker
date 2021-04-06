@@ -47,7 +47,7 @@ namespace seo_bot_docker
             // Navigate to Google
             _log.LogInformation("Opening Google...");
             _chromeDriver.Navigate().GoToUrl(url);
-            int timeoutSeconds = 10;
+            int timeoutSeconds = 60;
 
             string query = _searchHelper.GetRandomSearch();
             
@@ -95,7 +95,7 @@ namespace seo_bot_docker
             // Navigate to Google
             _log.LogInformation("Opening Bing...");
             _chromeDriver.Navigate().GoToUrl(url);
-            int timeoutSeconds = 10;
+            int timeoutSeconds = 60;
 
             string query = _searchHelper.GetRandomSearch();
             

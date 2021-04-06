@@ -34,19 +34,25 @@ namespace seo_bot_docker
                 driver = "chromedriver";
             }
 
+            bool exceptionFound = false;
+            string exceptionMsg = "";
+
             MyChromeDriver myChromeDriver = new MyChromeDriver(path, driver, log);
             myChromeDriver.Setup();
             try {
                 myChromeDriver.RunGoogleSearch("https://www.google.com");
             }
             catch (Exception ex) {
-                log.LogError(ex.Message);
+                exceptionFound = true;
+                exceptionMsg = ex.Message;
             }
             finally {
                 myChromeDriver.TearDown();
             }
-            
-            
+
+            if (exceptionFound) {
+                throw new Exception(exceptionMsg);
+            }                        
         }
     }
 }
