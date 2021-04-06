@@ -74,12 +74,20 @@ namespace seo_bot_docker
             // Find a search result in the list
             var results = _chromeDriver.FindElements(By.ClassName("g"));
             
-            if (!EvaluateResults(results) && _googleResultsPage <= 10) {
+            while (!EvaluateResults(results) && _googleResultsPage <= 10) {
                 // Get the next page of the results
                 IWebElement nextLink = _chromeDriver.FindElement(By.Id("pnnext"));
-                string nextPage = nextLink.GetAttribute("href");
                 _googleResultsPage++;
-                RunGoogleSearch(nextPage);
+                
+                _log.LogInformation("Clicking through the next page...");
+                nextLink.Click();
+                
+                // Wait until search results stats appear which confirms that the search finished
+                _log.LogInformation("Waiting for result stats...");
+                wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.Id("result-stats")));
+
+                // Find a search result in the list
+                results = _chromeDriver.FindElements(By.ClassName("g"));
             }
         }
 
