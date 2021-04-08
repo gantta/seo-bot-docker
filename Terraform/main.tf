@@ -90,7 +90,8 @@ resource "azurerm_function_app" "main" {
 
   app_settings = {
     APPINSIGHTS_INSTRUMENTATIONKEY = azurerm_application_insights.main.instrumentation_key
-    DOCKER_REGISTRY_SERVER_URL = azurerm_container_registry.main.login_server
+    CosmosConnection = azurerm_cosmosdb_account.main.connection_strings[1]
+    DOCKER_REGISTRY_SERVER_URL = "https://${azurerm_container_registry.main.login_server}"
     DOCKER_REGISTRY_SERVER_USERNAME = azurerm_container_registry.main.admin_username
     DOCKER_REGISTRY_SERVER_PASSWORD = azurerm_container_registry.main.admin_password
     ENVIRONMENT = var.environment
@@ -129,4 +130,56 @@ resource "azurerm_application_insights_web_test" "main" {
 </WebTest>
 XML
 
+  tags = {
+    "hidden-link:/subscriptions/${var.ARM_SUBSCRIPTION_ID}/resourceGroups/${azurerm_resource_group.main.name}/providers/microsoft.insights/components/${azurerm_application_insights.main.name}" = "Resource"
+  }
+
+}
+
+resource "azurerm_cosmosdb_account" "main" {
+  name                = "${var.prefix}-${var.environment}-cosmos"
+  location            = var.location
+  resource_group_name = azurerm_resource_group.main.name
+  offer_type          = "Standard"
+  kind                = "GlobalDocumentDB"
+
+  enable_automatic_failover = false
+
+  geo_location {
+    location          = var.location
+    failover_priority = 0
+  }
+
+  consistency_policy {
+    consistency_level = "Eventual"
+  }
+
+  tags = {
+    environment = var.environment
+  }
+}
+
+resource "azurerm_cosmosdb_sql_database" "db" {
+  name                = "seo-stats"
+  resource_group_name = azurerm_resource_group.main.name
+  account_name        = azurerm_cosmosdb_account.main.name
+  throughput          = 400
+}
+
+resource "azurerm_cosmosdb_sql_container" "db_stats" {
+  name = "search_stats"
+  resource_group_name = azurerm_resource_group.main.name
+  account_name = azurerm_cosmosdb_account.main.name
+  database_name = azurerm_cosmosdb_sql_database.db.name
+  partition_key_path = "/queryString"
+  partition_key_version = 1
+  throughput = 400
+
+  indexing_policy {
+    indexing_mode = "Consistent"
+
+    included_path {
+      path = "/*"
+    }
+  }
 }

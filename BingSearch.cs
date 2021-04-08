@@ -36,7 +36,9 @@ namespace seo_bot_docker
             bool exceptionFound = false;
             string exceptionMsg = "";
 
-            MyChromeDriver myChromeDriver = new MyChromeDriver(path, driver, log);
+            string cosmosConnection = Environment.GetEnvironmentVariable("CosmosConnection");
+
+            MyChromeDriver myChromeDriver = new MyChromeDriver(path, driver, log, cosmosConnection);
             myChromeDriver.Setup();
             try {
                 myChromeDriver.RunBingSearch("https://www.bing.com");

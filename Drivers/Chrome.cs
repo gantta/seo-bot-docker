@@ -17,12 +17,14 @@ namespace seo_bot_docker
         private SearchHelper _searchHelper;
         private int _googleResultsPage = 1;
         private int _bingResultsPage = 1;
+        private CosmosHelper _cosmosHelper;
  
-        public MyChromeDriver(string pathToDriver, string driverApp, ILogger log) {
+        public MyChromeDriver(string pathToDriver, string driverApp, ILogger log, string connectionString) {
             _pathToDriver = pathToDriver;
             _driverApp = driverApp;
             _log = log;
             _searchHelper = new SearchHelper();
+            _cosmosHelper = new CosmosHelper(connectionString);
         }
 
         public void Setup() {
@@ -74,7 +76,8 @@ namespace seo_bot_docker
             // Find a search result in the list
             var results = _chromeDriver.FindElements(By.ClassName("g"));
             
-            while (!EvaluateResults(results) && _googleResultsPage <= 10) {
+            int page = 1;
+            while (!EvaluateResults("Google", query, page ,results) && _googleResultsPage <= 10) {
                 // Get the next page of the results
                 IWebElement nextLink = _chromeDriver.FindElement(By.Id("pnnext"));
                 _googleResultsPage++;
@@ -88,6 +91,12 @@ namespace seo_bot_docker
 
                 // Find a search result in the list
                 results = _chromeDriver.FindElements(By.ClassName("g"));
+            }
+
+            if (_googleResultsPage > 10) {
+                // We didn't find a match in the first 10 pages
+                // Log the stat for further action later
+                LogStats("Google", query, -1, -1);
             }
         }
 
@@ -120,8 +129,10 @@ namespace seo_bot_docker
             // Find a search result in the list
             var results = _chromeDriver.FindElements(By.Id("b_results"));
 
-            while (!EvaluateResults(results) && _bingResultsPage <= 10) {
+            int page = 1;
+            while (!EvaluateResults("Bing", query, page, results) && _bingResultsPage <= 10) {
                 // Get the next page of the results
+                page++;
                 IWebElement nextLink = _chromeDriver.FindElement(By.CssSelector("#b_results > li.b_pag > nav > ul > li:last-child"));
                 _log.LogInformation("Clicking through the next page...");
                 nextLink.Click();
@@ -135,12 +146,20 @@ namespace seo_bot_docker
                 results = _chromeDriver.FindElements(By.Id("b_results"));
             }
 
+            if (_bingResultsPage > 10) {
+                // We didn't find a match in the first 10 pages
+                // Log the stat for further action later
+                LogStats("Bing", query, -1, -1);
+            }
+
         }
 
-        private bool EvaluateResults(System.Collections.ObjectModel.ReadOnlyCollection<IWebElement> results) {
+        private bool EvaluateResults(string provider, string queryString, int page, System.Collections.ObjectModel.ReadOnlyCollection<IWebElement> results) {
             _log.LogInformation("Printing the result links...");
             var foundIt = false;
+            int rank = 0;
             foreach (var result in results) {
+                rank++;
                 if (foundIt) { break; }
                 _log.LogInformation(result.Text);
                 string url = result.FindElement(By.TagName("a")).GetAttribute("href");
@@ -151,10 +170,23 @@ namespace seo_bot_docker
                     myPage.Click();
                     foundIt = true;
                     _log.LogInformation("Finished navigating to site...");
+                    LogStats(provider, queryString, page, rank);
                     return true;
                 }
             }
             return false;
+        }
+
+        public void LogStats(string provider, string queryString, int page, int rank) {
+            _log.LogInformation("Stashing the results in Cosmos...");
+            SearchStats stats = new SearchStats() {
+                _searchProvider = provider,
+                _queryString = queryString,
+                _resultPage = page,
+                _rank = rank
+            };
+
+            _cosmosHelper.AddStat(stats);
         }
 
         public void TearDown() {
